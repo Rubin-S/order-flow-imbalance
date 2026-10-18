@@ -1,0 +1,82 @@
+dt=100 ms done
+dt=1000 ms done
+dt=10000 ms done
+dt=60000 ms done
+
+Out-of-sample R^2 (%), latency 0, mean over test days (rows: horizon, cols: model)
+model  zero  recent_dp  OFI1  OFI10     I  state  state+flow  ridge
+dt_ms                                                              
+100     0.0       0.37  0.51   0.47  0.48  -2.74       -2.11  -1.95
+1000    0.0       0.07  0.05   0.02  0.04  -0.50       -0.40  -0.28
+10000   0.0      -0.39 -0.14  -0.13 -0.05  -0.46       -0.26  -0.10
+60000   0.0      -0.07 -2.91  -2.40 -1.20 -10.58      -14.10  -0.33
+
+Out-of-sample R^2 (%) by test day, state+flow OLS, latency 0
+test   20260801  20260901  20261001
+dt_ms                              
+100       -8.27      1.05      0.89
+1000      -4.25      1.54      1.51
+10000     -0.53      0.07     -0.32
+60000    -29.24    -18.04      4.99
+
+Q4 latency: OOS R^2 (%), state+flow OLS, mean over test days (rows: horizon, cols: latency ms)
+latency_ms    0      10     25     50     100
+dt_ms                                        
+100         -2.11  -2.11  -2.08  -1.99  -1.75
+1000        -0.40  -0.36  -0.38  -0.34  -0.24
+10000       -0.26  -0.27  -0.25  -0.31  -0.33
+60000      -14.10 -13.98 -13.89 -13.60 -13.49
+
+real	0m16.717s
+user	1m26.802s
+sys	0m11.522s
+Per-trade economics, ridge state+flow forecasts on test days (bps of price)
+ dt_ms  latency_ms threshold  trades  flat_share  hit_rate  gross_bps  taker_net_bps  maker_net_bps  tick_bps
+   100           0       all  214193       0.976     0.852     0.0067        -10.007         -3.980    0.0135
+   100           0       q50   96926       0.963     0.941     0.0126        -10.001         -3.974    0.0134
+   100           0       q90    7960       0.868     0.971     0.0464         -9.967         -3.941    0.0130
+   100           0       q99     809       0.787     0.977     0.0733         -9.940         -3.913    0.0135
+   100         100       all  214187       0.976     0.817     0.0060        -10.008         -3.980    0.0135
+   100         100       q50   97820       0.966     0.919     0.0109        -10.003         -3.976    0.0134
+   100         100       q90    8499       0.902     0.952     0.0315         -9.982         -3.955    0.0131
+   100         100       q99     889       0.862     0.943     0.0407         -9.973         -3.946    0.0134
+  1000           0       all   21408       0.849     0.725     0.0376         -9.976         -3.949    0.0135
+  1000           0       q50    9676       0.817     0.807     0.0589         -9.955         -3.928    0.0134
+  1000           0       q90     820       0.741     0.863     0.0846         -9.929         -3.902    0.0134
+  1000           0       q99      59       0.763     0.714     0.0415         -9.973         -3.944    0.0142
+  1000         100       all   21408       0.849     0.719     0.0364         -9.977         -3.950    0.0135
+  1000         100       q50    9775       0.818     0.803     0.0561         -9.957         -3.930    0.0134
+  1000         100       q90     909       0.734     0.860     0.0847         -9.929         -3.902    0.0133
+  1000         100       q99      30       0.700     0.889     0.0682         -9.945         -3.918    0.0133
+ 10000           0       all    2130       0.357     0.502     0.0006        -10.013         -3.986    0.0135
+ 10000           0       q50     605       0.261     0.537     0.0170         -9.996         -3.970    0.0130
+ 10000           0       q90      53       0.189     0.512     0.0573         -9.956         -3.929    0.0133
+ 10000           0       q99       1       0.000     1.000     0.2169         -9.796         -3.770    0.0128
+ 10000         100       all    2130       0.358     0.504     0.0312         -9.982         -3.955    0.0135
+ 10000         100       q50     582       0.271     0.526     0.0133        -10.000         -3.974    0.0130
+ 10000         100       q90      51       0.176     0.524     0.1764         -9.837         -3.810    0.0134
+ 10000         100       q99       1       0.000     1.000     0.2169         -9.796         -3.770    0.0128
+ 60000           0       all     345       0.064     0.523     0.0774         -9.936         -3.909    0.0135
+ 60000           0       q50     177       0.073     0.537    -0.0151        -10.029         -4.002    0.0136
+ 60000           0       q90      14       0.000     0.643    -0.2651        -10.278         -4.252    0.0133
+ 60000         100       all     345       0.070     0.517     0.0909         -9.923         -3.896    0.0135
+ 60000         100       q50     177       0.073     0.530    -0.0128        -10.026         -3.999    0.0136
+ 60000         100       q90      14       0.000     0.643    -0.2651        -10.278         -4.252    0.0133
+
+(hit_rate = share of winning trades among those where the mid moved)
+
+Headline (frozen: dt=1000 ms, latency=0 ms, q90): break-even round-trip cost 0.0846 bps over 820 trades
+Fees to beat: taker 10 bps, maker 4 bps per round trip = 298 / 746 ticks
+-> the headline edge covers 2.1% of even the maker fee
+Other rows are exploratory: the max over 32 rows is biased upward, so it is not the result.
+Moving-block bootstrap: 300 s blocks within each test day, 2000 resamples, seed 20261018
+                   test  dt_ms        metric  estimate  ci_lo  ci_hi  share_le_0  pass  n_buckets
+    edge: ridge vs zero    100  R2 diff (pp)     0.322  0.055  0.701       0.013  True     214193
+    edge: ridge vs zero   1000  R2 diff (pp)     1.065  0.513  1.592       0.000  True      21408
+Q3: state+flow vs state    100  R2 diff (pp)     0.330  0.230  0.422       0.000  True     214193
+Q3: state+flow vs state   1000  R2 diff (pp)     0.011 -0.073  0.085       0.401 False      21408
+      Q2: OFI10 vs OFI1   1000  R2 diff (pp)    -0.051 -0.157  0.021       0.900 False      21408
+          Q2: I vs OFI1   1000  R2 diff (pp)    -0.061 -0.199  0.065       0.858 False      21408
+     Q5: gross bps, q90   1000 bps per trade     0.085  0.058  0.112       0.000 False        820
+
+pass = 95% CI lower bound > 0 (R2 rows) or > 4 bps maker fee (Q5 row); n_buckets = trades on the Q5 row
