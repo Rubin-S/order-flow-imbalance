@@ -156,3 +156,5 @@ It fixes choices the original pre-registration left open. Nothing below changes 
 - **Multiple comparisons:** six R² tests plus one economics test, reported without correction; read a single marginal pass with that in mind.
 - **Disclosure:** for the first dev fold (Apr → May) there is no separate validation day, so ridge α is chosen on the chronologically last 25% of Apr 1. Every other fold, and the holdout, uses the last training day.
 - **Figure 3** shows only horizons with positive OOS R² (100 ms, 1 s); every row is in `results/economics.csv`.
+
+Concepts, derivations and interview Q&A: [LEARNING.md](LEARNING.md)
