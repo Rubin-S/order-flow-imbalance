@@ -10,8 +10,9 @@ engine:
 data: engine
 > scripts/get_data.sh
 
+# Clean per-day parquet tables + results/day_summary.csv
 features:
-> @echo "TODO: build per-day feature tables from data/ofi_*.csv"
+> .venv/bin/python scripts/build_features.py
 
 figures:
 > @echo "TODO: regenerate all plots"
