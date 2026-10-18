@@ -14,5 +14,6 @@ data: engine
 features:
 > .venv/bin/python scripts/build_features.py
 
+# Redraw every README plot from the committed results/*.csv
 figures:
-> @echo "TODO: regenerate all plots"
+> .venv/bin/python scripts/figures.py
