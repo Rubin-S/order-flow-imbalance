@@ -17,7 +17,7 @@ loses money. Compare it with 10 bps (taker) and 4 bps (maker).
 
 usage: python scripts/economics.py             (development forecasts, data/preds.parquet)
        python scripts/economics.py --holdout   (data/preds_holdout.parquet, ONLY for the final run)
-writes results/economics.csv
+writes results/economics.csv (holdout: results/economics_holdout.csv)
 """
 import sys
 import numpy as np
@@ -26,7 +26,7 @@ import pandas as pd
 TICK = 0.1
 TAKER_RT_BPS = 2 * 5.0          # 0.05% per side
 MAKER_RT_BPS = 2 * 2.0          # 0.02% per side
-MIN_TRADES = 100                # a "best" row needs at least this many trades
+HEADLINE = (1000, 0, "q90")     # frozen before the holdout (README addendum, tag freeze-v1)
 
 holdout = "--holdout" in sys.argv
 p = pd.read_parquet("data/preds_holdout.parquet" if holdout else "data/preds.parquet")
@@ -53,17 +53,16 @@ for (dt, L), g in p.groupby(["dt_ms", "latency_ms"]):
         })
 
 res = pd.DataFrame(rows)
-res.to_csv("results/economics.csv", index=False)
+res.to_csv("results/economics_holdout.csv" if holdout else "results/economics.csv", index=False)
 pd.set_option("display.width", 140)
 print("Per-trade economics, ridge state+flow forecasts on test days (bps of price)")
 print(res.round({"flat_share": 3, "hit_rate": 3, "gross_bps": 4, "taker_net_bps": 3, "maker_net_bps": 3,
                  "tick_bps": 4}).to_string(index=False))
-ok = res[res["trades"] >= MIN_TRADES]
-best = ok.loc[ok["gross_bps"].idxmax()]
+best = res.set_index(["dt_ms", "latency_ms", "threshold"]).loc[HEADLINE]
 print("\n(hit_rate = share of winning trades among those where the mid moved)")
-print(f"\nBest break-even (rows with >= {MIN_TRADES} trades) round-trip cost: {best['gross_bps']:.4f} bps "
-      f"(dt={best['dt_ms']} ms, latency={best['latency_ms']} ms, {best['threshold']}, "
-      f"{best['trades']} trades)")
+print(f"\nHeadline (frozen: dt={HEADLINE[0]} ms, latency={HEADLINE[1]} ms, {HEADLINE[2]}): "
+      f"break-even round-trip cost {best['gross_bps']:.4f} bps over {int(best['trades'])} trades")
 print(f"Fees to beat: taker {TAKER_RT_BPS:.0f} bps, maker {MAKER_RT_BPS:.0f} bps per round trip "
       f"= {MAKER_RT_BPS / best['tick_bps']:.0f} / {TAKER_RT_BPS / best['tick_bps']:.0f} ticks"
-      f"\n-> best edge covers {100 * best['gross_bps'] / MAKER_RT_BPS:.1f}% of even the maker fee")
+      f"\n-> the headline edge covers {100 * best['gross_bps'] / MAKER_RT_BPS:.1f}% of even the maker fee")
+print("Other rows are exploratory: the max over 32 rows is biased upward, so it is not the result.")

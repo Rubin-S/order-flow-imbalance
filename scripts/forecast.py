@@ -20,7 +20,8 @@ Score: out-of-sample R^2 = 1 - SSE(model) / SSE(zero). Zero or below = no edge.
 
 usage: python scripts/forecast.py               (development walk-forward)
        python scripts/forecast.py --holdout     (train Apr-Jul, test Aug/Sep/Oct, ONLY for the final run)
-writes results/forecast_oos.csv, and data/preds.parquet (test-day forecasts for Q5 economics)
+writes results/forecast_oos.csv and data/preds.parquet (test-day forecasts of every model,
+      for Q5 economics and the bootstrap); --holdout writes the *_holdout versions instead
 """
 import sys
 import numpy as np
@@ -174,7 +175,8 @@ for dt in DTS_MS:
                 q = np.quantile(np.abs(ridge_pred(rp, tr[cols].to_numpy())), [0.5, 0.9, 0.99])
                 preds.append(pd.DataFrame({"test": test, "dt_ms": dt, "latency_ms": L,
                     "bucket": te.index, "mid": te["mid"].to_numpy(), "y": yte,
-                    "pred": out["ridge"], "q50": q[0], "q90": q[1], "q99": q[2]}))
+                    "pred": out["ridge"], "q50": q[0], "q90": q[1], "q99": q[2],
+                    **{f"p_{k}": v for k, v in out.items()}}))      # every model, for paired bootstrap
 
             for name, pred in out.items():
                 rows.append({"train": "+".join(train), "test": test, "dt_ms": dt, "latency_ms": L,
@@ -184,7 +186,7 @@ for dt in DTS_MS:
     print(f"dt={dt} ms done")
 
 res = pd.DataFrame(rows)
-res.to_csv("results/forecast_oos.csv", index=False)
+res.to_csv("results/forecast_oos_holdout.csv" if holdout else "results/forecast_oos.csv", index=False)
 pd.concat(preds).to_parquet("data/preds_holdout.parquet" if holdout else "data/preds.parquet", index=False)
 order = ["zero", "recent_dp", "OFI1", "OFI10", "I", "state", "state+flow", "ridge"]
 

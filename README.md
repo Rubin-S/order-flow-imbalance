@@ -70,3 +70,18 @@ Binance USDⓈ-M VIP 0 fees: **0.02% maker, 0.05% taker** per side (checked 2026
 
 - The Oct 1, 00:00–00:39 UTC sample was used to build and test the engine before this split was fixed. It produced only contemporaneous sanity numbers (same-second R² 0.48–0.54), not forecasts.
 - The holdout files were downloaded and audited for data quality only (row counts, resets, message cadence, spread). No OFI-to-return statistics have been computed on Aug, Sep or Oct.
+
+### Addendum: frozen before the holdout (tag `freeze-v1`)
+
+Added after the development analysis and before any model touched Aug, Sep or Oct.
+It fixes choices the original pre-registration left open. Nothing below changes after the holdout run.
+
+- **Frozen code:** `forecast.py`, `economics.py`, `bootstrap.py` and `figures.py` at this tag. The holdout is one run of `forecast.py --holdout`, `economics.py --holdout` and `bootstrap.py --holdout`.
+- **Comparisons tested** (pass rule above, 95% CI of the R² difference excludes 0):
+  1. Edge: ridge vs zero forecast at 100 ms and 1 s.
+  2. Q3: state+flow vs state (OLS) at 100 ms and 1 s.
+  3. Q2 out-of-sample: OFI10 vs OFI1, and integrated OFI vs OFI1, at 1 s.
+- **Q5 headline:** ridge, 1 s, latency 0, trading only when |forecast| beats the training q90. It was chosen on dev because it is the best row with over 1,000 trades. It "pays" only if its bootstrap CI lower bound beats the 4 bps maker round trip. Every other economics row is exploratory.
+- **Multiple comparisons:** six R² tests plus one economics test, reported without correction; read a single marginal pass with that in mind.
+- **Disclosure:** for the first dev fold (Apr → May) there is no separate validation day, so ridge α is chosen on the chronologically last 25% of Apr 1. Every other fold, and the holdout, uses the last training day.
+- **Figure 3** shows only horizons with positive OOS R² (100 ms, 1 s); every row is in `results/economics.csv`.
