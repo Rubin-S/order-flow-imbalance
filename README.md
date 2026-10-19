@@ -2,6 +2,8 @@
 
 Event-level multi-level order flow imbalance on Binance BTCUSDT perps, built on [l2-orderbook-replay](https://github.com/Rubin-S/l2-orderbook-replay).
 
+> **Sequel:** [market-making-simulator](https://github.com/Rubin-S/market-making-simulator) asks whether a maker can earn this edge. Under realistic queue models, no: break-even fee −0.60 bp.
+
 > **Status:** v1 complete. Pre-registered 2026-10-18 (tag prereg-v1), frozen (freeze-v1), holdout run once (holdout-v1). Every holdout number below is reported as it came out.
 
 ## Reproduce
